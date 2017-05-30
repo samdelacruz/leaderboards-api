@@ -14,7 +14,7 @@ type Result struct {
 
 func main() {
 	redisPool := redis.NewPool(func() (redis.Conn, error) {
-		c, err := redis.Dial("tcp", os.Getenv("REDIS_URL"))
+		c, err := redis.Dial("tcp", os.Getenv("REDISTOGO_URL"))
 		if err != nil {
 			return nil, err
 		}
