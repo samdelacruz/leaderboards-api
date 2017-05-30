@@ -16,6 +16,7 @@ func main() {
 	redisPool := redis.NewPool(func() (redis.Conn, error) {
 		c, err := redis.DialURL(os.Getenv("REDISTOGO_URL"))
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 		return c, nil
@@ -38,9 +39,13 @@ func addScore(pool *redis.Pool) func(*gin.Context) {
 		var result Result
 
 		if g.Bind(&result) == nil {
-			_, err := c.Do("ZINCRBY", "totals:all", result.Score, result.UserID)
+			c.Send("MULTI")
+			c.Send("HSET", "user:"+result.UserID, "name", result.Name)
+			c.Send("ZINCRBY", "totals:all", result.Score, result.UserID)
+			c.Flush()
+			_, err := c.Do("EXEC")
 			if err != nil {
-				log.Println("Error running ZINCRBY totals:all " + string(result.Score) + " " + result.UserID)
+				log.Println("Error storing result: ", result, err)
 				g.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
