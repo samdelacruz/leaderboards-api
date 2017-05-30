@@ -4,6 +4,7 @@ import "github.com/gin-gonic/gin"
 import "github.com/garyburd/redigo/redis"
 import "net/http"
 import "log"
+import "os"
 
 type Result struct {
 	UserID string `json:"uid" form:"uid" binding:"required"`
@@ -13,7 +14,7 @@ type Result struct {
 
 func main() {
 	redisPool := redis.NewPool(func() (redis.Conn, error) {
-		c, err := redis.Dial("tcp", "127.0.0.1:6379")
+		c, err := redis.Dial("tcp", os.Getenv("REDIS_URL"))
 		if err != nil {
 			return nil, err
 		}
