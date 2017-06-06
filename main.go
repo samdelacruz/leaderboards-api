@@ -1,5 +1,6 @@
 package main
 
+import "gopkg.in/gin-contrib/cors.v1"
 import "github.com/gin-gonic/gin"
 import "github.com/garyburd/redigo/redis"
 import "net/http"
@@ -10,6 +11,7 @@ type Result struct {
 	UserID string `json:"uid" form:"uid" binding:"required"`
 	Name   string `json:"name" form:"name" binding:"required"`
 	Score  int    `json:"score" form:"score" binding:"required"`
+	Rank   int    `json:"rank"`
 }
 
 func main() {
@@ -25,6 +27,9 @@ func main() {
 	defer redisPool.Close()
 
 	router := gin.Default()
+
+	router.Use(cors.Default())
+
 	router.POST("/scores", addScore(redisPool))
 	router.GET("/totals/:window", getTotals(redisPool))
 
@@ -75,6 +80,7 @@ func getTotals(pool *redis.Pool) func(*gin.Context) {
 
 			for i := range results {
 				reply, err = redis.Scan(reply, &results[i].UserID, &results[i].Score)
+				c.Send("ZREVRANK", "totals:all", results[i].UserID)
 				c.Send("HGET", "user:"+results[i].UserID, "name")
 			}
 
@@ -87,7 +93,7 @@ func getTotals(pool *redis.Pool) func(*gin.Context) {
 			}
 
 			for i := range results {
-				results[i].Name, _ = redis.String(reply[i], nil)
+				reply, err = redis.Scan(reply, &results[i].Rank, &results[i].Name)
 			}
 
 		default:

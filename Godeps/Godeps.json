@@ -50,6 +50,11 @@
 			"Rev": "b90f89a1e7a9c1f6b918820b3daa7f08488c8594"
 		},
 		{
+			"ImportPath": "gopkg.in/gin-contrib/cors.v1",
+			"Comment": "v1.2",
+			"Rev": "cf4846e6a636a76237a28d9286f163c132e841bc"
+		},
+		{
 			"ImportPath": "gopkg.in/go-playground/validator.v8",
 			"Comment": "v8.18.1",
 			"Rev": "5f57d2222ad794d0dffb07e664ea05e2ee07d60c"
