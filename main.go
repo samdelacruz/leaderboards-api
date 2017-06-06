@@ -71,6 +71,7 @@ func getTotals(pool *redis.Pool) func(*gin.Context) {
 		case "all":
 			reply, err := redis.Values(c.Do("ZREVRANGE", "totals:all", 0, 9, "WITHSCORES"))
 			if err != nil {
+				log.Println(err)
 				g.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
